@@ -6,4 +6,6 @@ models:
         description: The unique key for each order.
         data_tests:
           - not_null
-          - unique
+          - unique:
+              meta:
+                  id: ['order_id','customer_id','ordered_at']
