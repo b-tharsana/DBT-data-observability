@@ -2,7 +2,15 @@ with
 
 source as (
 
-    select * from {{ source('ecom', 'raw_orders') }}
+    select 
+    id
+    ,store_id
+    ,customer
+    ,subtotal
+    ,tax_paid
+    ,order_total
+    ,cast(ordered_at as date) as ordered_at
+ from {{ source('ecom', 'raw_orders') }}
 
 ),
 

@@ -2,7 +2,12 @@ with
 
 source as (
 
-    select * from {{ source('ecom', 'raw_stores') }}
+    select 
+    id ,
+    name ,
+    tax_rate,
+    cast(opened_at as date) as opened_at
+     from {{ source('ecom', 'raw_stores') }}
 
 ),
 
