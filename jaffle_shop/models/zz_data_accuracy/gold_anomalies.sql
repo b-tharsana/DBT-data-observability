@@ -2,7 +2,7 @@
 
 WITH histo_anomalies AS (
     SELECT *
-    FROM {{ ref('l02_histo_anomalies') }}
+    FROM {{ ref('silver_histo_anomalies') }}
 )
 
 SELECT
@@ -12,9 +12,6 @@ SELECT
     ,id_context
     ,id_session
     ,anomaly_column_value
-    ,value_date
-    ,value_numeric
-    ,value_string
     ,id_anomaly_first_apparition
     ,dat_first_apparition
     ,flg_apparition

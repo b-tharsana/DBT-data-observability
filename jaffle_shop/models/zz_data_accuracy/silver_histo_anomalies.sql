@@ -1,7 +1,7 @@
 {{ config(materialized='view', tags=["quality"]) }}
 
 with histo_anomalies as (
-    select * from {{ ref('l01_histo_anomalies')}}
+    select * from {{ ref('bronze_histo_anomalies')}}
 ),
 
 monitor as (
@@ -33,9 +33,6 @@ select
     h.id_session,
     h.min_rn_monitor,
     h.max_rn_monitor,
-    h.value_date,
-    h.value_numeric,
-    h.value_string,
     case when h.valeur_precedente is null then 1 else 0 end as flg_apparition,
     m1.dat_execution as dat_first_apparition_without_error,
     m2.dat_execution as dat_first_apparition,
