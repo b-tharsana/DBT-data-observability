@@ -125,16 +125,50 @@ The Docker Compose stack uses the following default credentials:
 > ⚠️ These credentials are for **local development only**. Never use them in a production environment.
 
 ---
+ 
+## 📊 Core Behavior — Test History Persistence
+ 
+The central feature of this project is a **modified `store_test_failures` macro** that overrides dbt's default `--store-failures` behavior to persist test results in a **non-destructive, append-only** fashion.
+ 
+### The problem with dbt's default `--store-failures`
+ 
+By default, when running `dbt test --store-failures`, dbt creates temporary tables for failing rows — but **recreates (truncates) them on every run**, losing all history.
+ 
+### What this project does differently
+ 
+The macro is modified so that instead of recreating tables, it **appends results** on every run, producing two permanent tables in MSSQL:
+ 
+| Table | Content |
+|---|---|
+| `MONITOR_TABLE` | Execution log — one row per test run: test name, model, status (`pass`/`fail`), failure count, timestamp |
+| `HISTO_ANOMALIES_FAILURES` | Failure detail — the actual offending rows for each failed test, with the run timestamp for traceability |
+ 
+These tables are **never truncated**. Every `dbt test --store-failures` invocation appends new data, building a full historical record of your data quality over time.
+ 
+### Gold Layer — `gold_anomalies`
+ 
+The `gold_anomalies` models read from `MONITOR_TABLE` and `HISTO_ANOMALIES_FAILURES` to produce **aggregated, BI-ready indicators** consumable directly from any BI tool (Power BI, Tableau, Metabase…).
+ 
+Examples of generated metrics:
+ 
+- Repair rate
+- Most frequently failing models
+- Perimeter impacted
 
-## 📊 Data Observability Features
+### Usage
+ 
+```bash
+# Run tests
+dbt test --store-failures
+# → tests are executed
+# → execution logs are appended to MONITOR_TABLE
+# → failing row details are appended to HISTO_ANOMALIES_FAILURES
 
-This project covers the following observability pillars through dbt:
-
-- **Freshness** — `dbt source freshness` to detect stale data sources
-- **Schema tests** — `not_null`, `unique`, `accepted_values`, `relationships`
-- **Custom tests** — Business-logic validations on top of seed and model data
-- **Run artifacts** — `manifest.json`, `run_results.json` for pipeline introspection
-
+# Run gold level model
+dbt run --select +gold_anomalies
+# → read MONITOR_TABLE + HISTO_ANOMALIES_FAILURES
+# → generate agregate table ready for BI tool
+```
 ---
 
 ## 🌱 Dataset: Jaffle Shop
