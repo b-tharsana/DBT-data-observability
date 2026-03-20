@@ -1,3 +1,2 @@
-FROM mcr.microsoft.com/mssql/server:2022-latest AS base
+FROM mcr.microsoft.com/mssql/server:2022-latest
 
-COPY database*.sql /opt/

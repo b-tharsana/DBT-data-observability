@@ -5,8 +5,6 @@ x-common-variables: &common-variables
 
 services:
   mssql:
-    profiles:
-      - tests
     image: mcr.microsoft.com/mssql/server:2022-latest
     platform: linux/amd64
     ports:
@@ -24,10 +22,6 @@ services:
       - docker_network
 
   mssql.configurator:
-    profiles:
-      - tests
-    build:
-      context: tests/docker/
     image: mcr.microsoft.com/mssql/server:2022-latest
     platform: linux/amd64
     environment: *common-variables
